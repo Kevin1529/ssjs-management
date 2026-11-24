@@ -14,12 +14,24 @@ interface PendingUsersResponse {
   users: User[];
 }
 
+interface AdminUserDetailsResponse {
+  success: boolean;
+  user: User;
+  message?: string;
+}
+
+interface AdminActionResponse {
+  success: boolean;
+  message: string;
+  uniqueUserId?: string;
+  user?: User;
+}
+
 export const adminService = {
   login(email: string, password: string) {
     return apiRequest<AdminLoginResponse>("/admin/login", {
       method: "POST",
       body: JSON.stringify({ email, password }),
-      tokenKey: "adminToken"
     });
   },
 
@@ -27,46 +39,35 @@ export const adminService = {
     return apiRequest<PendingUsersResponse>("/admin/pending-users", {
       method: "GET",
       tokenKey: "adminToken",
-      headers: {
-        Authorization: `Bearer ${
-          typeof window !== "undefined"
-            ? localStorage.getItem("adminToken") || ""
-            : ""
-        }`,
-      },
     });
   },
 
+  getUserDetails(userId: string) {
+    return apiRequest<AdminUserDetailsResponse>(
+      `/admin/users/${userId}`,
+      {
+        method: "GET",
+        tokenKey: "adminToken",
+      }
+    );
+  },
+
   approveUser(userId: string) {
-    return apiRequest<{ success: boolean; message: string; uniqueUserId: string }>(
+    return apiRequest<AdminActionResponse>(
       `/admin/approve/${userId}`,
       {
         method: "PATCH",
         tokenKey: "adminToken",
-        headers: {
-          Authorization: `Bearer ${
-            typeof window !== "undefined"
-              ? localStorage.getItem("adminToken") || ""
-              : ""
-          }`,
-        },
       }
     );
   },
 
   rejectUser(userId: string, reason: string) {
-    return apiRequest<{ success: boolean; message: string }>(
+    return apiRequest<AdminActionResponse>(
       `/admin/reject/${userId}`,
       {
         method: "PATCH",
         tokenKey: "adminToken",
-        headers: {
-          Authorization: `Bearer ${
-            typeof window !== "undefined"
-              ? localStorage.getItem("adminToken") || ""
-              : ""
-          }`,
-        },
         body: JSON.stringify({ reason }),
       }
     );
