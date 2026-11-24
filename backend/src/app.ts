@@ -2,8 +2,6 @@
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
-import path from "path";
-import type { ErrorRequestHandler } from "express";
 import authRoutes from "./routes/auth.routes";
 import userRoutes from "./routes/user.routes";
 import adminRoutes from "./routes/admin.routes";
@@ -21,9 +19,6 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve uploaded files from the local uploads directory.
-app.use("/uploads", express.static(path.resolve(process.cwd(), "uploads")));
-
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
@@ -36,25 +31,5 @@ app.get("/api/health", (req, res) => {
     message: "Backend is running"
   });
 });
-
-// Return upload validation errors as JSON instead of Express HTML errors.
-const errorHandler: ErrorRequestHandler = (error, _req, res, _next) => {
-  const message =
-    error instanceof Error ? error.message : "Unexpected server error";
-
-  const statusCode =
-    message.includes("File too large") ||
-    message.includes("must be") ||
-    message.includes("Upload type")
-      ? 400
-      : 500;
-
-  res.status(statusCode).json({
-    success: false,
-    message
-  });
-};
-
-app.use(errorHandler);
 
 export default app;
