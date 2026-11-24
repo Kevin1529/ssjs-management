@@ -1,3 +1,4 @@
+import fs from "fs";
 
 import { Response } from "express";
 import User from "../models/User";
@@ -152,6 +153,47 @@ export const getMyProfile = async (
     return res.status(500).json({
       success: false,
       message: "Unable to fetch profile"
+    });
+  }
+};
+
+
+export const uploadProfileFile = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "Please select a valid file to upload"
+      });
+    }
+
+    if (req.query.type === "photo" && req.file.size > 5 * 1024 * 1024) {
+      await fs.promises.unlink(req.file.path);
+      return res.status(400).json({
+        success: false,
+        message: "Profile photo must be 5 MB or smaller"
+      });
+    }
+
+    const fileUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+
+    return res.status(200).json({
+      success: true,
+      message: "File uploaded successfully",
+      fileUrl,
+      fileName: req.file.originalname,
+      fileSize: req.file.size,
+      fileType: req.query.type
+    });
+  } catch (error) {
+    console.error("File upload error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to upload file"
     });
   }
 };
