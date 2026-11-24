@@ -21,8 +21,15 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve uploaded files from the local uploads directory.
-app.use("/uploads", express.static(path.resolve(process.cwd(), "uploads")));
+// Uploaded files are displayed by the frontend on a different origin.
+app.use(
+  "/uploads",
+  (_req, res, next) => {
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+    next();
+  },
+  express.static(path.resolve(process.cwd(), "uploads")),
+);
 
 // Routes
 app.use("/api/auth", authRoutes);
