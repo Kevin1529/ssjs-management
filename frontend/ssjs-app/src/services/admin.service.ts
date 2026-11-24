@@ -38,6 +38,24 @@ interface AdminDashboardStatsResponse {
   };
 }
 
+
+export interface AllUsersParams {
+  page: number;
+  limit: number;
+  search?: string;
+  status?: string;
+}
+
+export interface AllUsersResponse {
+  success: boolean;
+  message: string;
+  totalCount: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  users: User[];
+}
+
 export const adminService = {
   login(email: string, password: string) {
     return apiRequest<AdminLoginResponse>("/admin/login", {
@@ -92,5 +110,23 @@ export const adminService = {
       tokenKey: "adminToken",
     }
   );
+  },
+
+getAllUsers(params: AllUsersParams) {
+  const query = new URLSearchParams({
+    page: String(params.page),
+    limit: String(params.limit),
+    search: params.search || "",
+    status: params.status || "ALL",
+  });
+
+  return apiRequest<AllUsersResponse>(
+    `/admin/all-users?${query.toString()}`,
+    {
+      method: "GET",
+      tokenKey: "adminToken",
+    }
+  );
 },
+
 };
