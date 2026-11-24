@@ -283,37 +283,97 @@ export const rejectUser = async (
 };
 
 // 5. Get All users
+
 export const getAllUsers = async (
   req: Request,
   res: Response
 ): Promise<void> => {
   try {
-    // Fetch all users and total count
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const limit = Math.min(
+      100,
+      Math.max(1, Number(req.query.limit) || 10)
+    );
+
+    const search =
+      typeof req.query.search === "string"
+        ? req.query.search.trim()
+        : "";
+
+    const status =
+      typeof req.query.status === "string"
+        ? req.query.status
+        : "ALL";
+
+    const validStatuses = [
+      "PROFILE_PENDING",
+      "PENDING_APPROVAL",
+      "APPROVED",
+      "REJECTED",
+    ];
+
+    if (status !== "ALL" && !validStatuses.includes(status)) {
+      res.status(400).json({
+        success: false,
+        message: "Invalid user status",
+      });
+      return;
+    }
+
+    const filter: Record<string, any> = {};
+
+    if (status !== "ALL") {
+      filter.status = status;
+    }
+
+    if (search) {
+      const escapedSearch = search.replace(
+        /[.*+?^${}()|[\]\\]/g,
+        "\\$&"
+      );
+
+      const searchRegex = new RegExp(escapedSearch, "i");
+
+      filter.$or = [
+        { fullName: searchRegex },
+        { email: searchRegex },
+        { mobileNumber: searchRegex },
+        { uniqueUserId: searchRegex },
+      ];
+    }
+
+    const skip = (page - 1) * limit;
+
     const [users, totalCount] = await Promise.all([
-      User.find()
+      User.find(filter)
         .select("-__v")
         .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
         .lean(),
 
-      User.countDocuments()
+      User.countDocuments(filter),
     ]);
 
     res.status(200).json({
       success: true,
       message: "Users fetched successfully",
       totalCount,
-      users
+      page,
+      limit,
+      totalPages: Math.ceil(totalCount / limit),
+      users,
     });
-
   } catch (error) {
     console.error("Get all users error:", error);
 
     res.status(500).json({
       success: false,
-      message: "Failed to fetch users"
+      message: "Failed to fetch users",
     });
   }
 };
+
 
 
 // 6. Dashboard Analytics

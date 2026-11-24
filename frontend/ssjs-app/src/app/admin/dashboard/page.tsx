@@ -10,6 +10,7 @@ import {
   Search,
   ShieldCheck,
   UserRound,
+  Users,
   X,
 } from "lucide-react";
 
@@ -153,7 +154,6 @@ export default function AdminDashboard() {
             Pending applications
           </div>
         </div>
-
         <button
           onClick={logout}
           className="mt-auto flex items-center gap-3 px-4 py-3 text-sm text-white/65 hover:text-white"
@@ -164,7 +164,7 @@ export default function AdminDashboard() {
       </aside>
 
       <section className="lg:pl-64">
-        <header className="flex items-center justify-between border-b border-[#E8EAE2] bg-white px-5 py-5 sm:px-9">
+        <header className="flex flex-col justify-between gap-4 border-b border-[#E8EAE2] bg-white px-5 py-5 sm:flex-row sm:items-center sm:px-9">
           <div>
             <p className="text-xs tracking-widest text-[#78917F]">
               ADMINISTRATION
@@ -174,13 +174,23 @@ export default function AdminDashboard() {
             </h1>
           </div>
 
-          <button
-            onClick={loadUsers}
-            className="flex items-center gap-2 rounded-xl border border-[#E4E9E2] px-4 py-2 text-sm text-[#29473D] hover:bg-[#F6F5EF]"
-          >
-            <RefreshCw size={16} />
-            Refresh
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => router.push("/admin/users")}
+              className="flex items-center gap-2 rounded-xl border border-[#E4E9E2] px-5 py-3 text-sm text-[#29473D] hover:bg-[#F6F5EF]"
+            >
+              <Users size={20} />
+              Member Directory
+            </button>
+
+            <button
+              onClick={loadUsers}
+              className="flex items-center gap-2 rounded-xl border border-[#E4E9E2] px-5 py-3 text-sm text-[#29473D] hover:bg-[#F6F5EF]"
+            >
+              <RefreshCw size={20} />
+              Refresh
+            </button>
+          </div>
         </header>
 
         <div className="p-5 sm:p-9">
