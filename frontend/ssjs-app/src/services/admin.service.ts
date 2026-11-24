@@ -27,6 +27,17 @@ interface AdminActionResponse {
   user?: User;
 }
 
+interface AdminDashboardStatsResponse {
+  success: boolean;
+  stats: {
+    totalUsers: number;
+    approvedUsers: number;
+    pendingUsers: number;
+    rejectedUsers: number;
+    profilePendingUsers: number;
+  };
+}
+
 export const adminService = {
   login(email: string, password: string) {
     return apiRequest<AdminLoginResponse>("/admin/login", {
@@ -72,4 +83,14 @@ export const adminService = {
       }
     );
   },
+
+  getDashboardStats() {
+  return apiRequest<AdminDashboardStatsResponse>(
+    "/admin/dashboard/stats",
+    {
+      method: "GET",
+      tokenKey: "adminToken",
+    }
+  );
+},
 };

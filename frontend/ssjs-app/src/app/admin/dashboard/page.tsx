@@ -26,6 +26,22 @@ export default function AdminDashboard() {
   const [error, setError] = useState("");
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    approvedUsers: 0,
+    pendingUsers: 0,
+    rejectedUsers: 0,
+    profilePendingUsers: 0,
+  });
+
+  const loadStats = useCallback(async () => {
+    try {
+      const response = await adminService.getDashboardStats();
+      setStats(response.stats);
+    } catch (err) {
+      console.error("Unable to load dashboard statistics:", err);
+    }
+  }, []);
 
   const loadUsers = useCallback(async () => {
     try {
@@ -58,6 +74,7 @@ export default function AdminDashboard() {
     }
 
     loadUsers();
+    loadStats();
   }, [router, loadUsers]);
 
   const approve = async (user: User) => {
@@ -71,6 +88,7 @@ export default function AdminDashboard() {
       const result = await adminService.approveUser(user._id);
       alert(`Approved successfully. Membership ID: ${result.uniqueUserId}`);
       await loadUsers();
+      await loadStats();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Approval failed.");
     } finally {
@@ -91,6 +109,7 @@ export default function AdminDashboard() {
       setSelectedUser(null);
       setRejectionReason("");
       await loadUsers();
+      await loadStats();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Rejection failed.");
     } finally {
@@ -174,37 +193,67 @@ export default function AdminDashboard() {
             </p>
           </div>
 
-          <div className="mb-8 grid gap-4 sm:grid-cols-2">
-            <div className="rounded-2xl border border-[#E8EAE2] bg-white p-6">
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-500">Pending applications</p>
-                <Clock3
-                  className="text-[#98702E]"
-                  size={20}
-                />
-              </div>
-              <p className="mt-4 text-3xl font-semibold text-[#173F35]">
-                {users.length}
-              </p>
-              <p className="mt-1 text-xs text-gray-400">Awaiting your review</p>
-            </div>
+          <div className="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {[
+              {
+                label: "Total members",
+                value: stats.totalUsers,
+                icon: UserRound,
+                color: "text-[#47765C]",
+                description: "All registered users",
+              },
+              {
+                label: "Approved",
+                value: stats.approvedUsers,
+                icon: BadgeCheck,
+                color: "text-green-600",
+                description: "Active memberships",
+              },
+              {
+                label: "Pending approval",
+                value: stats.pendingUsers,
+                icon: Clock3,
+                color: "text-amber-600",
+                description: "Awaiting your review",
+              },
+              {
+                label: "Rejected",
+                value: stats.rejectedUsers,
+                icon: ShieldCheck,
+                color: "text-red-600",
+                description: "Rejected applications",
+              },
+            ].map((item) => {
+              const Icon = item.icon;
 
-            <div className="rounded-2xl border border-[#E8EAE2] bg-white p-6">
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-500">Queue status</p>
-                <BadgeCheck
-                  className="text-[#47765C]"
-                  size={20}
-                />
-              </div>
-              <p className="mt-4 text-3xl font-semibold text-[#173F35]">
-                {loading ? "..." : "Live"}
-              </p>
-              <p className="mt-1 text-xs text-gray-400">
-                Loaded from your backend
-              </p>
-            </div>
+              return (
+                <div
+                  key={item.label}
+                  className="rounded-2xl border border-[#E8EAE2] bg-white p-6"
+                >
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm text-gray-500">{item.label}</p>
+                    <Icon
+                      size={21}
+                      className={item.color}
+                    />
+                  </div>
+
+                  <p className="mt-4 text-3xl font-semibold text-[#173F35]">
+                    {item.value}
+                  </p>
+
+                  <p className="mt-1 text-xs text-gray-400">
+                    {item.description}
+                  </p>
+                </div>
+              );
+            })}
           </div>
+
+          <p className="mb-6 text-xs text-gray-500">
+            Incomplete profiles: {stats.profilePendingUsers}
+          </p>
 
           <section className="overflow-hidden rounded-2xl border border-[#E8EAE2] bg-white">
             <div className="flex flex-col justify-between gap-4 border-b border-[#EDF0EA] p-5 sm:flex-row sm:items-center sm:p-6">
