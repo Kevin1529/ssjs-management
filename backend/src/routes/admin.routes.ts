@@ -5,7 +5,8 @@ import {
   getUserDetails,
   approveUser,
   rejectUser,
-  getAllUsers
+  getAllUsers,
+  getDashboardStats
 } from "../controllers/admin.controller";
 import { adminAuth } from "../middleware/admin.middleware";
 
@@ -24,4 +25,7 @@ router.patch("/approve/:id", adminAuth, approveUser);
 router.patch("/reject/:id", adminAuth, rejectUser);
 
 router.get("/all-users", adminAuth, getAllUsers);
+
+router.get("/dashboard/stats", adminAuth, getDashboardStats);
+
 export default router;

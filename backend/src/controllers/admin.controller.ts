@@ -314,3 +314,44 @@ export const getAllUsers = async (
     });
   }
 };
+
+
+// 6. Dashboard Analytics
+export const getDashboardStats = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const [
+      totalUsers,
+      approvedUsers,
+      pendingUsers,
+      rejectedUsers,
+      profilePendingUsers
+    ] = await Promise.all([
+      User.countDocuments(),
+      User.countDocuments({ status: "APPROVED" }),
+      User.countDocuments({ status: "PENDING_APPROVAL" }),
+      User.countDocuments({ status: "REJECTED" }),
+      User.countDocuments({ status: "PROFILE_PENDING" })
+    ]);
+
+    res.status(200).json({
+      success: true,
+      stats: {
+        totalUsers,
+        approvedUsers,
+        pendingUsers,
+        rejectedUsers,
+        profilePendingUsers
+      }
+    });
+  } catch (error) {
+    console.error("Dashboard stats error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch dashboard statistics"
+    });
+  }
+};
