@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import GlobalApiLoader from "@/components/GlobalApiLoader";
+import SiteHeader from "@/components/SiteHeader";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Mosaic | Membership Portal",
+  title: "Mosaic | Membership Community",
   description: "Your community. Your membership. Your journey.",
 };
 
@@ -13,7 +15,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <SiteHeader />
+        <GlobalApiLoader />
+        {children}
+      </body>
     </html>
   );
 }
