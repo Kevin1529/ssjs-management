@@ -34,3 +34,10 @@ button {
   background: #d5e6d7;
   color: #173f35;
 }
+
+
+@layer components {
+  .input {
+    @apply min-h-12 w-full rounded-xl border border-[#E4E9E2] bg-[#FAFBF8] px-4 py-3 text-sm text-[#193B32] outline-none transition placeholder:text-gray-400 focus:border-[#47765C] focus:ring-4 focus:ring-[#47765C]/10;
+  }
+}
