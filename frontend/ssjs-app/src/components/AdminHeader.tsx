@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useState } from "react";
 import {
   LayoutDashboard,
+  LayoutGrid,
   LogOut,
-  Menu,
   ShieldCheck,
   Users,
   X,
@@ -85,23 +85,25 @@ export default function AdminHeader({
           <button
             type="button"
             onClick={() => setIsMenuOpen((isOpen) => !isOpen)}
-            aria-label={isMenuOpen ? "Close admin menu" : "Open admin menu"}
+            aria-label={
+              isMenuOpen ? "Close admin mega menu" : "Open admin mega menu"
+            }
             aria-expanded={isMenuOpen}
-            aria-controls="admin-mobile-navigation"
+            aria-controls="admin-mobile-mega-menu"
             className="inline-flex h-10 w-10 items-center justify-center rounded-xl text-white transition hover:bg-white/10 md:hidden"
           >
-            {isMenuOpen ? <X size={21} /> : <Menu size={21} />}
+            {isMenuOpen ? <X size={21} /> : <LayoutGrid size={21} />}
           </button>
         </div>
       </div>
 
       <nav
-        id="admin-mobile-navigation"
-        aria-label="Admin navigation"
+        id="admin-mobile-mega-menu"
+        aria-label="Admin mega menu"
         hidden={!isMenuOpen}
-        className="border-t border-white/10 px-5 py-3 md:hidden"
+        className="absolute left-0 right-0 top-full border-t border-white/10 bg-[#173F35] px-5 py-4 shadow-xl md:hidden"
       >
-        <div className="mx-auto flex max-w-7xl flex-col gap-1 sm:px-3">
+        <div className="mx-auto grid max-w-7xl gap-2 sm:grid-cols-2 sm:px-3">
           {navigation.map(({ href, label, icon: Icon }) => (
             <Link
               key={href}

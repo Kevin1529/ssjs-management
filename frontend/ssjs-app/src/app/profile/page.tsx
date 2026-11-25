@@ -40,8 +40,13 @@ export default function ProfilePage() {
 
         if (!user) return;
 
-        if (user.status === "APPROVED" || user.status === "PENDING_APPROVAL") {
+        if (user.status === "APPROVED") {
           router.replace("/dashboard");
+          return;
+        }
+
+        if (user.status === "PENDING_APPROVAL") {
+          router.replace("/account-settings");
           return;
         }
 
@@ -205,7 +210,7 @@ export default function ProfilePage() {
         documents: form.documents,
       });
 
-      router.push("/dashboard");
+      router.push("/account-settings");
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Unable to submit your profile.",

@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { apiRequest } from "@/lib/api";
 import { setActiveRole } from "@/lib/active-role";
+import { userService } from "@/services/user.service";
 
 export default function Login() {
   const router = useRouter();
@@ -77,7 +78,12 @@ export default function Login() {
 
       // The backend sets the HttpOnly userToken cookie.
       setActiveRole("user");
-      router.push("/dashboard");
+      const response = await userService.getMyProfile();
+      router.push(
+        response.profile.status === "APPROVED"
+          ? "/dashboard"
+          : "/account-settings",
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
