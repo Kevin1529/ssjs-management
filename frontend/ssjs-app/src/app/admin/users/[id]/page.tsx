@@ -112,16 +112,6 @@ export default function AdminUserDetailsPage() {
     }
   };
 
-  const logout = async () => {
-    try {
-      await adminService.logout();
-    } catch (err) {
-      console.error("Admin logout failed:", err);
-    } finally {
-      router.replace("/admin/login");
-    }
-  };
-
   const statusStyle: Record<string, string> = {
     PROFILE_PENDING: "bg-gray-100 text-gray-700",
     PENDING_APPROVAL: "bg-amber-100 text-amber-800",
@@ -178,12 +168,6 @@ export default function AdminUserDetailsPage() {
             </h1>
           </div>
 
-          <button
-            onClick={logout}
-            className="rounded-lg px-3 py-2 text-sm text-gray-500 hover:bg-gray-100"
-          >
-            Logout
-          </button>
         </div>
       </header>
 

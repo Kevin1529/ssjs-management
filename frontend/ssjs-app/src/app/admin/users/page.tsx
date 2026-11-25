@@ -9,8 +9,6 @@ import {
   Eye,
   ChevronLeft,
   ChevronRight,
-  LogOut,
-  ArrowLeft,
 } from "lucide-react";
 
 import { adminService } from "@/services/admin.service";
@@ -104,16 +102,6 @@ export default function MemberDirectoryPage() {
     loadUsers();
   }, [loadUsers]);
 
-  const logout = async () => {
-    try {
-      await adminService.logout();
-    } catch (err) {
-      console.error("Admin logout failed:", err);
-    } finally {
-      router.replace("/admin/login");
-    }
-  };
-
   const changeStatus = (value: string) => {
     setStatus(value as "ALL" | UserStatus);
     setPage(1);
@@ -133,47 +121,8 @@ export default function MemberDirectoryPage() {
 
   return (
     <main className="min-h-screen bg-[#F6F5EF]">
-      {/* Sidebar */}
-      <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col bg-[#173F35] p-6 text-white lg:flex">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#D5E6D7] text-[#173F35]">
-            <Users size={21} />
-          </div>
-
-          <div>
-            <p className="font-semibold">Mosaic</p>
-            <p className="text-[10px] tracking-widest text-white/50">
-              ADMIN PANEL
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-12 space-y-2">
-          <button
-            onClick={() => router.push("/admin/dashboard")}
-            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm text-white/70 hover:bg-white/10"
-          >
-            <ArrowLeft size={18} />
-            Dashboard
-          </button>
-
-          <div className="flex items-center gap-3 rounded-xl bg-white/10 px-4 py-3 text-sm">
-            <Users size={18} />
-            Member Directory
-          </div>
-        </div>
-
-        <button
-          onClick={logout}
-          className="mt-auto flex items-center gap-3 px-4 py-3 text-sm text-white/65 hover:text-white"
-        >
-          <LogOut size={18} />
-          Logout
-        </button>
-      </aside>
-
       {/* Main content */}
-      <section className="lg:pl-64">
+      <section>
         <header className="flex flex-col justify-between gap-4 border-b border-[#E8EAE2] bg-white px-5 py-5 sm:flex-row sm:items-center sm:px-9">
           <div>
             <p className="text-xs tracking-widest text-[#78917F]">

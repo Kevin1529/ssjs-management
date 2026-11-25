@@ -11,6 +11,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { apiRequest } from "@/lib/api";
+import { setActiveRole } from "@/lib/active-role";
 
 export default function Login() {
   const router = useRouter();
@@ -75,6 +76,7 @@ export default function Login() {
       });
 
       // The backend sets the HttpOnly userToken cookie.
+      setActiveRole("user");
       router.push("/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");

@@ -1,8 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { Menu, Sparkles, X } from "lucide-react";
-import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { LogOut, Menu, Sparkles, X } from "lucide-react";
+import { useState, useSyncExternalStore } from "react";
+import AdminHeader from "@/components/AdminHeader";
+import { adminService } from "@/services/admin.service";
+import { userService } from "@/services/user.service";
+import {
+  getActiveRole,
+  setActiveRole,
+  subscribeToActiveRole,
+} from "@/lib/active-role";
 
 const navigation = [
   { href: "/", label: "Home" },
@@ -12,7 +21,62 @@ const navigation = [
 ];
 
 export default function SiteHeader() {
+  const pathname = usePathname();
+  const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
+  const [logoutError, setLogoutError] = useState("");
+  const storedRole = useSyncExternalStore(
+    subscribeToActiveRole,
+    getActiveRole,
+    () => null,
+  );
+  const routeRole =
+    pathname.startsWith("/admin") && pathname !== "/admin/login"
+      ? "admin"
+      : pathname === "/dashboard" || pathname === "/profile"
+        ? "user"
+        : null;
+  const authRole = routeRole ?? storedRole;
+
+  const logout = async () => {
+    if (!authRole || loggingOut) return;
+
+    setLoggingOut(true);
+    setLogoutError("");
+
+    try {
+      if (authRole === "admin") {
+        await adminService.logout();
+      } else {
+        await userService.logout();
+      }
+
+      setActiveRole(null);
+      setIsMenuOpen(false);
+      router.replace(authRole === "admin" ? "/admin/login" : "/");
+    } catch (error) {
+      console.error("Logout failed:", error);
+      setLogoutError("Unable to log out. Please try again.");
+    } finally {
+      setLoggingOut(false);
+    }
+  };
+
+  if (pathname.startsWith("/admin")) {
+    if (pathname === "/admin/login") {
+      return null;
+    }
+
+    return (
+      <AdminHeader
+        activePage={pathname.startsWith("/admin/users") ? "users" : "dashboard"}
+        onLogout={logout}
+        loggingOut={loggingOut}
+        logoutError={logoutError}
+      />
+    );
+  }
 
   return (
     <header className="sticky top-0 z-50 border-b border-[#E5EAE2] bg-[#F6F5EF]/95 backdrop-blur">
@@ -48,12 +112,24 @@ export default function SiteHeader() {
               {item.label}
             </Link>
           ))}
-          <Link
-            href="/login"
-            className="rounded-xl bg-[#173F35] px-5 py-2.5 font-semibold text-white transition hover:bg-[#245747]"
-          >
-            Log in
-          </Link>
+          {authRole ? (
+            <button
+              type="button"
+              onClick={logout}
+              disabled={loggingOut}
+              className="inline-flex items-center gap-2 rounded-xl bg-[#173F35] px-5 py-2.5 font-semibold text-white transition hover:bg-[#245747] disabled:opacity-60"
+            >
+              <LogOut size={16} />
+              {loggingOut ? "Logging out..." : "Logout"}
+            </button>
+          ) : (
+            <Link
+              href="/login"
+              className="rounded-xl bg-[#173F35] px-5 py-2.5 font-semibold text-white transition hover:bg-[#245747]"
+            >
+              Log in
+            </Link>
+          )}
         </nav>
 
         <button
@@ -87,15 +163,35 @@ export default function SiteHeader() {
               {item.label}
             </Link>
           ))}
-          <Link
-            href="/login"
-            onClick={() => setIsMenuOpen(false)}
-            className="mt-2 rounded-xl bg-[#173F35] px-5 py-3 text-center text-sm font-semibold text-white transition hover:bg-[#245747]"
-          >
-            Log in
-          </Link>
+          {authRole ? (
+            <button
+              type="button"
+              onClick={logout}
+              disabled={loggingOut}
+              className="mt-2 inline-flex items-center justify-center gap-2 rounded-xl bg-[#173F35] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#245747] disabled:opacity-60"
+            >
+              <LogOut size={16} />
+              {loggingOut ? "Logging out..." : "Logout"}
+            </button>
+          ) : (
+            <Link
+              href="/login"
+              onClick={() => setIsMenuOpen(false)}
+              className="mt-2 rounded-xl bg-[#173F35] px-5 py-3 text-center text-sm font-semibold text-white transition hover:bg-[#245747]"
+            >
+              Log in
+            </Link>
+          )}
         </div>
       </nav>
+      {logoutError && (
+        <p
+          role="alert"
+          className="bg-red-50 px-6 py-2 text-right text-sm text-red-700"
+        >
+          {logoutError}
+        </p>
+      )}
     </header>
   );
 }

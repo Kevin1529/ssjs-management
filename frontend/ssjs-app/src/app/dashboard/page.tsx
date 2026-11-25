@@ -6,7 +6,6 @@ import {
   BadgeCheck,
   Clock3,
   FileText,
-  LogOut,
   RefreshCw,
   ShieldAlert,
   Sparkles,
@@ -53,16 +52,6 @@ export default function DashboardPage() {
     loadUser();
   }, [router]);
 
-  const logout = async () => {
-    try {
-      await userService.logout();
-    } catch (err) {
-      console.error("User logout failed:", err);
-    } finally {
-      router.replace("/");
-    }
-  };
-
   if (loading) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#F6F5EF]">
@@ -106,13 +95,6 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <button
-            onClick={logout}
-            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-gray-500 hover:bg-gray-100"
-          >
-            <LogOut size={17} />
-            Logout
-          </button>
         </div>
       </header>
 
