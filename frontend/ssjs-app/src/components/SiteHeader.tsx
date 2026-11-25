@@ -2,7 +2,14 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LogOut, Menu, Sparkles, X } from "lucide-react";
+import {
+  ChevronDown,
+  CircleUserRound,
+  LayoutGrid,
+  LogOut,
+  Sparkles,
+  X,
+} from "lucide-react";
 import { useState, useSyncExternalStore } from "react";
 import AdminHeader from "@/components/AdminHeader";
 import { adminService } from "@/services/admin.service";
@@ -34,7 +41,9 @@ export default function SiteHeader() {
   const routeRole =
     pathname.startsWith("/admin") && pathname !== "/admin/login"
       ? "admin"
-      : pathname === "/dashboard" || pathname === "/profile"
+      : pathname === "/dashboard" ||
+          pathname === "/account-settings" ||
+          pathname === "/profile"
         ? "user"
         : null;
   const authRole = routeRole ?? storedRole;
@@ -112,7 +121,12 @@ export default function SiteHeader() {
               {item.label}
             </Link>
           ))}
-          {authRole ? (
+          {authRole === "user" ? (
+            <AccountMenu
+              onLogout={logout}
+              loggingOut={loggingOut}
+            />
+          ) : authRole ? (
             <button
               type="button"
               onClick={logout}
@@ -135,53 +149,90 @@ export default function SiteHeader() {
         <button
           type="button"
           className="inline-flex h-10 w-10 items-center justify-center rounded-xl text-[#173F35] transition hover:bg-[#E8F0E7] md:hidden"
-          aria-label={
-            isMenuOpen ? "Close navigation menu" : "Open navigation menu"
-          }
+          aria-label={isMenuOpen ? "Close mega menu" : "Open mega menu"}
           aria-expanded={isMenuOpen}
-          aria-controls="mobile-navigation"
+          aria-controls="mobile-mega-menu"
           onClick={() => setIsMenuOpen((isOpen) => !isOpen)}
         >
-          {isMenuOpen ? <X size={22} /> : <Menu size={22} />}
+          {isMenuOpen ? <X size={22} /> : <LayoutGrid size={21} />}
         </button>
       </div>
 
       <nav
-        id="mobile-navigation"
-        aria-label="Mobile navigation"
+        id="mobile-mega-menu"
+        aria-label="Mega menu"
         hidden={!isMenuOpen}
-        className="border-t border-[#E5EAE2] px-6 py-4 md:hidden"
+        className="absolute left-0 right-0 top-full border-t border-[#E5EAE2] bg-white px-5 py-5 shadow-xl md:hidden sm:px-8"
       >
-        <div className="mx-auto flex max-w-7xl flex-col gap-1 sm:px-4">
-          {navigation.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={() => setIsMenuOpen(false)}
-              className="rounded-lg px-3 py-3 text-sm font-medium text-gray-700 transition hover:bg-[#E8F0E7] hover:text-[#173F35]"
-            >
-              {item.label}
-            </Link>
-          ))}
-          {authRole ? (
-            <button
-              type="button"
-              onClick={logout}
-              disabled={loggingOut}
-              className="mt-2 inline-flex items-center justify-center gap-2 rounded-xl bg-[#173F35] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#245747] disabled:opacity-60"
-            >
-              <LogOut size={16} />
-              {loggingOut ? "Logging out..." : "Logout"}
-            </button>
-          ) : (
-            <Link
-              href="/login"
-              onClick={() => setIsMenuOpen(false)}
-              className="mt-2 rounded-xl bg-[#173F35] px-5 py-3 text-center text-sm font-semibold text-white transition hover:bg-[#245747]"
-            >
-              Log in
-            </Link>
-          )}
+        <div className="mx-auto grid max-w-7xl gap-6 sm:grid-cols-2">
+          <section>
+            <h2 className="mb-2 px-3 text-xs font-semibold uppercase tracking-widest text-[#78917F]">
+              Explore
+            </h2>
+            <div className="grid gap-1 sm:grid-cols-2">
+              {navigation.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setIsMenuOpen(false)}
+                  className="rounded-xl px-3 py-3 text-sm font-medium text-gray-700 transition hover:bg-[#E8F0E7] hover:text-[#173F35]"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          </section>
+
+          <section>
+            <h2 className="mb-2 px-3 text-xs font-semibold uppercase tracking-widest text-[#78917F]">
+              {authRole === "user" ? "Your account" : "Membership"}
+            </h2>
+            {authRole === "user" ? (
+              <div className="grid gap-1">
+                <Link
+                  href="/dashboard"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="rounded-xl px-3 py-3 text-sm font-medium text-gray-700 transition hover:bg-[#E8F0E7] hover:text-[#173F35]"
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  href="/account-settings"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="rounded-xl px-3 py-3 text-sm font-medium text-gray-700 transition hover:bg-[#E8F0E7] hover:text-[#173F35]"
+                >
+                  Profile
+                </Link>
+                <button
+                  type="button"
+                  onClick={logout}
+                  disabled={loggingOut}
+                  className="mt-1 inline-flex items-center gap-2 rounded-xl px-3 py-3 text-left text-sm font-medium text-red-700 transition hover:bg-red-50 disabled:opacity-60"
+                >
+                  <LogOut size={16} />
+                  {loggingOut ? "Logging out..." : "Logout"}
+                </button>
+              </div>
+            ) : authRole ? (
+              <button
+                type="button"
+                onClick={logout}
+                disabled={loggingOut}
+                className="inline-flex items-center gap-2 rounded-xl px-3 py-3 text-sm font-medium text-red-700 transition hover:bg-red-50 disabled:opacity-60"
+              >
+                <LogOut size={16} />
+                {loggingOut ? "Logging out..." : "Logout"}
+              </button>
+            ) : (
+              <Link
+                href="/login"
+                onClick={() => setIsMenuOpen(false)}
+                className="inline-flex rounded-xl px-3 py-3 text-sm font-medium text-[#173F35] transition hover:bg-[#E8F0E7]"
+              >
+                Log in
+              </Link>
+            )}
+          </section>
         </div>
       </nav>
       {logoutError && (
@@ -193,5 +244,70 @@ export default function SiteHeader() {
         </p>
       )}
     </header>
+  );
+}
+
+function AccountMenu({
+  onLogout,
+  loggingOut,
+}: {
+  onLogout: () => void;
+  loggingOut: boolean;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        aria-label="Open account menu"
+        aria-haspopup="menu"
+        aria-expanded={isOpen}
+        onClick={() => setIsOpen((open) => !open)}
+        className="inline-flex items-center gap-2 rounded-xl border border-[#E4E9E2] bg-white px-3 py-2.5 text-sm font-medium text-[#29473D] transition hover:bg-[#E8F0E7]"
+      >
+        <CircleUserRound size={19} />
+        <span className="hidden sm:inline">Account</span>
+        <ChevronDown size={15} />
+      </button>
+
+      {isOpen && (
+        <div
+          role="menu"
+          className="absolute right-0 z-[60] mt-2 w-52 rounded-2xl border border-[#E5EAE2] bg-white p-2 text-sm shadow-xl"
+        >
+          <Link
+            href="/dashboard"
+            role="menuitem"
+            onClick={() => setIsOpen(false)}
+            className="block rounded-xl px-3 py-2.5 text-[#29473D] hover:bg-[#F6F5EF]"
+          >
+            Dashboard
+          </Link>
+          <Link
+            href="/account-settings"
+            role="menuitem"
+            onClick={() => setIsOpen(false)}
+            className="block rounded-xl px-3 py-2.5 text-[#29473D] hover:bg-[#F6F5EF]"
+          >
+            Profile
+          </Link>
+          <div className="my-1 border-t border-[#EDF0EA]" />
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => {
+              setIsOpen(false);
+              onLogout();
+            }}
+            disabled={loggingOut}
+            className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-red-700 hover:bg-red-50 disabled:opacity-60"
+          >
+            <LogOut size={16} />
+            {loggingOut ? "Logging out..." : "Logout"}
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
