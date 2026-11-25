@@ -33,6 +33,16 @@ export const userService = {
     );
   },
 
+  updateApprovedProfile(payload: ProfilePayload) {
+    return apiRequest<{ success: boolean; message: string; profile: User }>(
+      "/users/update-profile",
+      {
+        method: "PATCH",
+        body: JSON.stringify(payload),
+      },
+    );
+  },
+
   uploadFile(file: File, type: "photo" | "document") {
     const formData = new FormData();
     formData.append("file", file);

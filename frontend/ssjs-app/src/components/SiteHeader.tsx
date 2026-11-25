@@ -43,7 +43,7 @@ export default function SiteHeader() {
       ? "admin"
       : pathname === "/dashboard" ||
           pathname === "/account-settings" ||
-          pathname === "/profile"
+          pathname.startsWith("/profile")
         ? "user"
         : null;
   const authRole = routeRole ?? storedRole;

@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 
 import { adminService } from "@/services/admin.service";
+import { formatDate, formatDateTime } from "@/lib/date-format";
 import type { User } from "@/types/user";
 
 export default function AdminUserDetailsPage() {
@@ -262,16 +263,22 @@ export default function AdminUserDetailsPage() {
               <Detail
                 icon={<CalendarDays size={17} />}
                 label="Date of birth"
-                value={
-                  user.dateOfBirth
-                    ? new Date(user.dateOfBirth).toLocaleDateString()
-                    : undefined
-                }
+                value={formatDate(user.dateOfBirth)}
               />
               <Detail
                 icon={<UserRound size={17} />}
                 label="Gender"
                 value={user.gender}
+              />
+              <Detail
+                icon={<CalendarDays size={17} />}
+                label="Last updated"
+                value={formatDateTime(user.updatedAt)}
+              />
+              <Detail
+                icon={<CalendarDays size={17} />}
+                label="Created on"
+                value={formatDateTime(user.createdAt)}
               />
             </div>
           </section>

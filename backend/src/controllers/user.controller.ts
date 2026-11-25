@@ -128,6 +128,130 @@ export const createProfile = async (
   }
 };
 
+
+/**
+ * Allows an already-approved member to update only their editable profile fields.
+ * Membership identity and approval fields are deliberately never read from req.body.
+ */
+export const updateApprovedProfile = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  try {
+    const user = await User.findById(req.userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    if (user.status !== "APPROVED") {
+      return res.status(403).json({
+        success: false,
+        message: "Only approved members can edit their profile"
+      });
+    }
+
+    const {
+      fullName,
+      email,
+      dateOfBirth,
+      gender,
+      address,
+      profilePhoto,
+      documents
+    } = req.body;
+
+    if (
+      typeof fullName !== "string" || !fullName.trim() ||
+      typeof email !== "string" ||
+      !dateOfBirth ||
+      !address ||
+      typeof address.addressLine !== "string" || !address.addressLine.trim() ||
+      typeof address.city !== "string" || !address.city.trim() ||
+      typeof address.state !== "string" || !address.state.trim() ||
+      typeof address.country !== "string" || !address.country.trim() ||
+      typeof address.pincode !== "string" || !address.pincode.trim() ||
+      !Array.isArray(documents) ||
+      !documents.every((document: unknown) => typeof document === "string") ||
+      (profilePhoto !== undefined && typeof profilePhoto !== "string")
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide all required profile fields in a valid format"
+      });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(normalizedEmail)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email address"
+      });
+    }
+
+    const existingEmailUser = await User.findOne({
+      email: normalizedEmail,
+      _id: { $ne: user._id }
+    }).select("_id");
+
+    if (existingEmailUser) {
+      return res.status(409).json({
+        success: false,
+        message: "This email address is already used by another member"
+      });
+    }
+
+    const dob = new Date(dateOfBirth);
+    if (Number.isNaN(dob.getTime()) || dob >= new Date()) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide a valid date of birth"
+      });
+    }
+
+    if (!["MALE", "FEMALE", "OTHER"].includes(gender)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid gender"
+      });
+    }
+
+    user.fullName = fullName.trim();
+    user.email = normalizedEmail;
+    user.dateOfBirth = dob;
+    user.gender = gender;
+    user.address = {
+      addressLine: address.addressLine.trim(),
+      city: address.city.trim(),
+      state: address.state.trim(),
+      country: address.country.trim(),
+      pincode: address.pincode.trim()
+    };
+    user.profilePhoto = profilePhoto || "";
+    user.documents = documents;
+
+    // Do not change status, uniqueUserId, approvedAt or mobileNumber.
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Your profile has been updated successfully",
+      profile: user
+    });
+  } catch (error) {
+    console.error("Update approved profile error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Unable to update your profile"
+    });
+  }
+};
+
 export const getMyProfile = async (
   req: AuthRequest,
   res: Response

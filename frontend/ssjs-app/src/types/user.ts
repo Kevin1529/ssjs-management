@@ -5,7 +5,7 @@ export type UserStatus =
   | "APPROVED"
   | "REJECTED";
 
-export type Gender = "MALE" | "FEMALE" | "OTHER";
+export type Gender = "MALE" | "FEMALE";
 
 export interface UserAddress {
   addressLine: string;
@@ -30,6 +30,7 @@ export interface User {
   rejectionReason?: string;
   approvedAt?: string;
   createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ApiResponse<T> {
