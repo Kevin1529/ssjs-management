@@ -3,6 +3,7 @@ import { Router } from "express";
 import {
   createProfile,
   getMyProfile,
+  updateApprovedProfile,
   uploadProfileFile
 } from "../controllers/user.controller";
 
@@ -20,6 +21,7 @@ const router = Router();
 
 router.post("/create-profile", authMiddleware, createProfile);
 router.get("/my-profile", authMiddleware, getMyProfile);
+router.patch("/update-profile", authMiddleware, updateApprovedProfile);
 
 // Upload one profile photo or document.
 // Example: POST /api/users/upload?type=photo

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { BadgeCheck, RefreshCw, UserRound } from "lucide-react";
+import { BadgeCheck, RefreshCw } from "lucide-react";
 import { userService } from "@/services/user.service";
 import type { User } from "@/types/user";
 
@@ -130,18 +130,6 @@ export default function DashboardPage() {
           </div>
         </section>
 
-        <section className="mt-6 grid gap-5 md:grid-cols-2">
-          <div className="rounded-2xl border border-[#E8EAE2] bg-white p-6">
-            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-[#E8F0E7] text-[#173F35]">
-              <UserRound size={21} />
-            </div>
-            <h2 className="font-semibold text-[#173F35]">Personal profile</h2>
-            <p className="mt-2 text-sm text-gray-500">
-              {user.fullName || "Name not provided"}
-            </p>
-            <p className="mt-1 text-sm text-gray-500">{user.email || ""}</p>
-          </div>
-        </section>
       </div>
     </main>
   );

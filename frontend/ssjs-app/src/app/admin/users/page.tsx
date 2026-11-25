@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import { adminService } from "@/services/admin.service";
+import { formatDateTime } from "@/lib/date-format";
 import type { User, UserStatus } from "@/types/user";
 
 const PAGE_SIZE = 10;
@@ -292,11 +293,7 @@ export default function MemberDirectoryPage() {
                           </td>
 
                           <td className="px-6 py-4 text-sm text-gray-500">
-                            {user.createdAt
-                              ? new Date(user.createdAt).toLocaleDateString(
-                                  "en-IN",
-                                )
-                              : "-"}
+                            {formatDateTime(user.createdAt) || "-"}
                           </td>
 
                           <td className="px-6 py-4 text-right">

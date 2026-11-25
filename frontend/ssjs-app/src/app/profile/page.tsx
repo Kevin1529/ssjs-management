@@ -2,7 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, FileText, ImagePlus, LoaderCircle, Sparkles, X } from "lucide-react";
+import {
+  ArrowRight,
+  FileText,
+  ImagePlus,
+  LoaderCircle,
+  Sparkles,
+  X,
+} from "lucide-react";
 import { userService } from "@/services/user.service";
 import type { Gender, ProfilePayload } from "@/types/user";
 
@@ -65,9 +72,9 @@ export default function ProfilePage() {
           profilePhoto: user.profilePhoto || "",
           documents: user.documents || [],
         });
-
       } catch (err) {
-        const message = err instanceof Error ? err.message : "Unable to load your profile.";
+        const message =
+          err instanceof Error ? err.message : "Unable to load your profile.";
         if (/token|session|authentication|unauthorized|login/i.test(message)) {
           router.replace("/");
           return;
@@ -139,11 +146,14 @@ export default function ProfilePage() {
     ];
 
     const invalidFile = selectedFiles.find(
-      (file) => !allowedTypes.includes(file.type) || file.size > 10 * 1024 * 1024,
+      (file) =>
+        !allowedTypes.includes(file.type) || file.size > 10 * 1024 * 1024,
     );
 
     if (invalidFile) {
-      setError("Documents must be PDF, JPG, PNG or WEBP and 10 MB or smaller each.");
+      setError(
+        "Documents must be PDF, JPG, PNG or WEBP and 10 MB or smaller each.",
+      );
       return;
     }
 
@@ -385,8 +395,8 @@ export default function ProfilePage() {
               </h3>
               <p className="mb-5 text-sm text-gray-500">
                 Upload a profile photo and supporting documents. Photos accept
-                JPG, PNG or WEBP (up to 5 MB). Documents accept PDF, JPG, PNG
-                or WEBP (up to 10 MB each).
+                JPG, PNG or WEBP (up to 5 MB). Documents accept PDF, JPG, PNG or
+                WEBP (up to 10 MB each).
               </p>
 
               <div className="space-y-6">
@@ -415,7 +425,9 @@ export default function ProfilePage() {
                         className="block w-full text-sm text-gray-500 file:mr-4 file:rounded-lg file:border-0 file:bg-[#E8F0E7] file:px-4 file:py-2 file:font-medium file:text-[#173F35]"
                       />
                       {uploadingPhoto && (
-                        <p className="mt-2 text-xs text-[#47765C]">Uploading photo...</p>
+                        <p className="mt-2 text-xs text-[#47765C]">
+                          Uploading photo...
+                        </p>
                       )}
                     </div>
                   </div>
@@ -433,7 +445,9 @@ export default function ProfilePage() {
                     className="block w-full text-sm text-gray-500 file:mr-4 file:rounded-lg file:border-0 file:bg-[#E8F0E7] file:px-4 file:py-2 file:font-medium file:text-[#173F35]"
                   />
                   {uploadingDocuments && (
-                    <p className="mt-2 text-xs text-[#47765C]">Uploading documents...</p>
+                    <p className="mt-2 text-xs text-[#47765C]">
+                      Uploading documents...
+                    </p>
                   )}
 
                   {form.documents.length > 0 && (
@@ -449,8 +463,15 @@ export default function ProfilePage() {
                             rel="noreferrer"
                             className="flex min-w-0 items-center gap-2 text-sm text-[#29473D] underline"
                           >
-                            <FileText size={17} className="shrink-0" />
-                            <span className="truncate">{decodeURIComponent(url.split("/").pop() || "Uploaded document")}</span>
+                            <FileText
+                              size={17}
+                              className="shrink-0"
+                            />
+                            <span className="truncate">
+                              {decodeURIComponent(
+                                url.split("/").pop() || "Uploaded document",
+                              )}
+                            </span>
                           </a>
                           <button
                             type="button"
