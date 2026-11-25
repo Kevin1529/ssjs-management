@@ -38,26 +38,29 @@ export default function DashboardPage() {
         router.replace("/profile");
       }
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Unable to load dashboard.",
-      );
+      const message = err instanceof Error ? err.message : "Unable to load dashboard.";
+      if (/token|session|authentication|unauthorized|login/i.test(message)) {
+        router.replace("/");
+        return;
+      }
+      setError(message);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (!localStorage.getItem("userToken")) {
-      router.replace("/");
-      return;
-    }
-
     loadUser();
   }, [router]);
 
-  const logout = () => {
-    localStorage.removeItem("userToken");
-    router.replace("/");
+  const logout = async () => {
+    try {
+      await userService.logout();
+    } catch (err) {
+      console.error("User logout failed:", err);
+    } finally {
+      router.replace("/");
+    }
   };
 
   if (loading) {

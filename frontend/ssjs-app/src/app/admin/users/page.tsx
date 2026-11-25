@@ -87,10 +87,8 @@ export default function MemberDirectoryPage() {
         err instanceof Error ? err.message : "Unable to load members.";
 
       if (
-        message.toLowerCase().includes("token") ||
-        message.toLowerCase().includes("unauthorized")
+        /token|session|authentication|unauthorized|login/i.test(message)
       ) {
-        localStorage.removeItem("adminToken");
         router.replace("/admin/login");
         return;
       }
@@ -101,19 +99,19 @@ export default function MemberDirectoryPage() {
     }
   }, [page, searchTerm, status, router]);
 
-  // Check admin authentication
+  // The protected API request validates the HttpOnly admin cookie.
   useEffect(() => {
-    if (!localStorage.getItem("adminToken")) {
-      router.replace("/admin/login");
-      return;
-    }
-
     loadUsers();
-  }, [router, loadUsers]);
+  }, [loadUsers]);
 
-  const logout = () => {
-    localStorage.removeItem("adminToken");
-    router.replace("/admin/login");
+  const logout = async () => {
+    try {
+      await adminService.logout();
+    } catch (err) {
+      console.error("Admin logout failed:", err);
+    } finally {
+      router.replace("/admin/login");
+    }
   };
 
   const changeStatus = (value: string) => {

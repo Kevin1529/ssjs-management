@@ -19,13 +19,9 @@ export default function AdminLoginPage() {
     setLoading(true);
 
     try {
-      const response = await adminService.login(email, password);
+      await adminService.login(email, password);
 
-      if (!response.token) {
-        throw new Error("Admin token was not returned.");
-      }
-
-      localStorage.setItem("adminToken", response.token);
+      // The backend sets the HttpOnly adminToken cookie.
       router.push("/admin/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Admin login failed.");

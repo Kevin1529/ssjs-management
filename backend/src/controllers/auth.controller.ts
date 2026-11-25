@@ -6,6 +6,7 @@ import OTP from "../models/OTP";
 import sendSMS from "../services/sms.service";
 import User from "../models/User";
 import generateToken from "../utils/jwt";
+import { setAuthCookie, clearAuthCookie } from "../utils/authCookie";
 
 export const sendOTP = async (
   req: Request,
@@ -151,11 +152,11 @@ export const verifyOTP = async (
     }
 
     const token = generateToken(user._id.toString());
+    setAuthCookie(res, "userToken", token);
 
     return res.status(200).json({
       success: true,
       message: "OTP verified successfully",
-      token,
       user: {
         id: user._id,
         mobileNumber: user.mobileNumber,
@@ -173,4 +174,14 @@ export const verifyOTP = async (
       message: "OTP verification failed"
     });
   }
+};
+
+
+export const userLogout = async (_req: Request, res: Response) => {
+  clearAuthCookie(res, "userToken");
+
+  return res.status(200).json({
+    success: true,
+    message: "User logged out successfully",
+  });
 };

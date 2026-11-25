@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { adminLogin } from "../controllers/admin.controller";
+import { adminLogin, adminLogout } from "../controllers/admin.controller";
 import {
   getPendingUsers,
   getUserDetails,
@@ -14,6 +14,7 @@ const router = Router();
 
 // Public admin login
 router.post("/login", adminLogin);
+router.post("/logout", adminLogout);
 
 // Protected admin APIs
 router.get("/pending-users", adminAuth, getPendingUsers);

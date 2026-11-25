@@ -6,6 +6,7 @@ import mongoose from "mongoose";
 import User from "../models/User";
 import Counter from "../models/Counter";
 import { AdminRequest } from "../middleware/admin.middleware";
+import { setAuthCookie, clearAuthCookie } from "../utils/authCookie";
 
 export const adminLogin = async (
   req: Request,
@@ -44,19 +45,26 @@ export const adminLogin = async (
       });
     }
 
+    const secret = process.env.JWT_SECRET;
+
+    if (!secret) {
+      throw new Error("JWT_SECRET is not configured");
+    }
+
     const token = jwt.sign(
       {
         adminId: admin._id.toString(),
         role: "ADMIN"
       },
-      process.env.JWT_SECRET!,
+      secret,
       { expiresIn: "1d" }
     );
 
+    setAuthCookie(res, "adminToken", token);
+
     return res.status(200).json({
       success: true,
-      message: "Admin login successful",
-      token
+      message: "Admin login successful"
     });
 
   } catch (error) {
@@ -414,4 +422,14 @@ export const getDashboardStats = async (
       message: "Failed to fetch dashboard statistics"
     });
   }
+};
+
+
+export const adminLogout = async (_req: Request, res: Response) => {
+  clearAuthCookie(res, "adminToken");
+
+  return res.status(200).json({
+    success: true,
+    message: "Admin logged out successfully",
+  });
 };
