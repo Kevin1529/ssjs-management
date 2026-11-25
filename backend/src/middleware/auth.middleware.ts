@@ -1,4 +1,3 @@
-
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
@@ -7,50 +6,46 @@ export interface AuthRequest extends Request {
   file?: Express.Multer.File;
 }
 
+interface UserJwtPayload extends jwt.JwtPayload {
+  userId: string;
+}
+
 const authMiddleware = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const authReq = req as AuthRequest;
+    const token = req.cookies?.userToken;
 
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    if (!token) {
       return res.status(401).json({
         success: false,
-        message: "Authentication token is required"
+        message: "Authentication token is required",
       });
     }
 
-    const token = authHeader.split(" ")[1];
     const secret = process.env.JWT_SECRET;
-
     if (!secret) {
       throw new Error("JWT_SECRET is not configured");
     }
 
     const decoded = jwt.verify(token, secret);
 
-    if (
-      typeof decoded === "string" ||
-      typeof decoded.userId !== "string"
-    ) {
+    if (typeof decoded === "string" || typeof decoded.userId !== "string") {
       return res.status(401).json({
         success: false,
-        message: "Invalid authentication token"
+        message: "Invalid authentication token",
       });
     }
 
-    authReq.userId = decoded.userId;
-
+    authReq.userId = (decoded as UserJwtPayload).userId;
     next();
-
-  } catch (error) {
+  } catch (_error) {
     return res.status(401).json({
       success: false,
-      message: "Invalid or expired token"
+      message: "Invalid or expired session. Please login again.",
     });
   }
 };

@@ -46,10 +46,8 @@ export default function AdminUserDetailsPage() {
         err instanceof Error ? err.message : "Unable to load user details.";
 
       if (
-        message.toLowerCase().includes("token") ||
-        message.toLowerCase().includes("unauthorized")
+        /token|session|authentication|unauthorized|login/i.test(message)
       ) {
-        localStorage.removeItem("adminToken");
         router.replace("/admin/login");
         return;
       }
@@ -61,13 +59,8 @@ export default function AdminUserDetailsPage() {
   }, [userId, router]);
 
   useEffect(() => {
-    if (!localStorage.getItem("adminToken")) {
-      router.replace("/admin/login");
-      return;
-    }
-
     loadUser();
-  }, [loadUser, router]);
+  }, [loadUser]);
 
   const approve = async () => {
     if (!user) return;
@@ -119,9 +112,14 @@ export default function AdminUserDetailsPage() {
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem("adminToken");
-    router.replace("/admin/login");
+  const logout = async () => {
+    try {
+      await adminService.logout();
+    } catch (err) {
+      console.error("Admin logout failed:", err);
+    } finally {
+      router.replace("/admin/login");
+    }
   };
 
   const statusStyle: Record<string, string> = {

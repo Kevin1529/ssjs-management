@@ -5,7 +5,6 @@ import type { User } from "@/types/user";
 interface AdminLoginResponse {
   success: boolean;
   message: string;
-  token: string;
 }
 
 interface PendingUsersResponse {
@@ -67,7 +66,6 @@ export const adminService = {
   getPendingUsers() {
     return apiRequest<PendingUsersResponse>("/admin/pending-users", {
       method: "GET",
-      tokenKey: "adminToken",
     });
   },
 
@@ -76,8 +74,7 @@ export const adminService = {
       `/admin/users/${userId}`,
       {
         method: "GET",
-        tokenKey: "adminToken",
-      }
+        }
     );
   },
 
@@ -86,8 +83,7 @@ export const adminService = {
       `/admin/approve/${userId}`,
       {
         method: "PATCH",
-        tokenKey: "adminToken",
-      }
+        }
     );
   },
 
@@ -96,8 +92,7 @@ export const adminService = {
       `/admin/reject/${userId}`,
       {
         method: "PATCH",
-        tokenKey: "adminToken",
-        body: JSON.stringify({ reason }),
+          body: JSON.stringify({ reason }),
       }
     );
   },
@@ -107,7 +102,6 @@ export const adminService = {
     "/admin/dashboard/stats",
     {
       method: "GET",
-      tokenKey: "adminToken",
     }
   );
   },
@@ -124,9 +118,14 @@ getAllUsers(params: AllUsersParams) {
     `/admin/all-users?${query.toString()}`,
     {
       method: "GET",
-      tokenKey: "adminToken",
     }
   );
 },
+
+  logout() {
+    return apiRequest<{ success: boolean; message: string }>("/admin/logout", {
+      method: "POST",
+    });
+  },
 
 };

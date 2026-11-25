@@ -5,42 +5,50 @@ export interface AdminRequest extends Request {
   adminId?: string;
 }
 
+interface AdminJwtPayload extends jwt.JwtPayload {
+  adminId: string;
+  role: string;
+}
+
 export const adminAuth = (
   req: AdminRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
-    const authHeader = req.headers.authorization;
+    const token = req.cookies?.adminToken;
 
-    if (!authHeader?.startsWith("Bearer ")) {
+    if (!token) {
       return res.status(401).json({
         success: false,
-        message: "Admin token required"
+        message: "Admin token required",
       });
     }
 
-    const token = authHeader.split(" ")[1];
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      throw new Error("JWT_SECRET is not configured");
+    }
 
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET!
-    ) as { adminId: string; role: string };
+    const decoded = jwt.verify(token, secret);
 
-    if (decoded.role !== "ADMIN" || !decoded.adminId) {
+    if (
+      typeof decoded === "string" ||
+      decoded.role !== "ADMIN" ||
+      typeof decoded.adminId !== "string"
+    ) {
       return res.status(403).json({
         success: false,
-        message: "Admin access denied"
+        message: "Admin access denied",
       });
     }
 
-    req.adminId = decoded.adminId;
+    req.adminId = (decoded as AdminJwtPayload).adminId;
     next();
-
-  } catch {
+  } catch (_error) {
     return res.status(401).json({
       success: false,
-      message: "Invalid or expired token"
+      message: "Invalid or expired admin session",
     });
   }
 };

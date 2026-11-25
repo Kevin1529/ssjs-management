@@ -33,13 +33,6 @@ export default function ProfilePage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const token = localStorage.getItem("userToken");
-
-    if (!token) {
-      router.replace("/");
-      return;
-    }
-
     const loadProfile = async () => {
       try {
         const response = await userService.getMyProfile();
@@ -69,9 +62,12 @@ export default function ProfilePage() {
         });
 
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Unable to load your profile.",
-        );
+        const message = err instanceof Error ? err.message : "Unable to load your profile.";
+        if (/token|session|authentication|unauthorized|login/i.test(message)) {
+          router.replace("/");
+          return;
+        }
+        setError(message);
       } finally {
         setInitialLoading(false);
       }

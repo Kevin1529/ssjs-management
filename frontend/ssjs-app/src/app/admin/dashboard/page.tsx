@@ -54,10 +54,8 @@ export default function AdminDashboard() {
         err instanceof Error ? err.message : "Unable to load applications.";
 
       if (
-        message.toLowerCase().includes("token") ||
-        message.toLowerCase().includes("unauthorized")
+        /token|session|authentication|unauthorized|login/i.test(message)
       ) {
-        localStorage.removeItem("adminToken");
         router.replace("/admin/login");
         return;
       }
@@ -69,14 +67,9 @@ export default function AdminDashboard() {
   }, [router]);
 
   useEffect(() => {
-    if (!localStorage.getItem("adminToken")) {
-      router.replace("/admin/login");
-      return;
-    }
-
     loadUsers();
     loadStats();
-  }, [router, loadUsers]);
+  }, [loadUsers, loadStats]);
 
   const approve = async (user: User) => {
     if (!window.confirm(`Approve ${user.fullName || "this member"}?`)) {
@@ -118,9 +111,14 @@ export default function AdminDashboard() {
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem("adminToken");
-    router.replace("/admin/login");
+  const logout = async () => {
+    try {
+      await adminService.logout();
+    } catch (err) {
+      console.error("Admin logout failed:", err);
+    } finally {
+      router.replace("/admin/login");
+    }
   };
 
   const filteredUsers = users.filter((user) => {

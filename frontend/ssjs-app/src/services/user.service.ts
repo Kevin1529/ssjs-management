@@ -20,7 +20,6 @@ export const userService = {
   getMyProfile() {
     return apiRequest<MyProfileResponse>("/users/my-profile", {
       method: "GET",
-      tokenKey: "userToken",
     });
   },
 
@@ -30,8 +29,7 @@ export const userService = {
       {
         method: "POST",
         body: JSON.stringify(payload),
-        tokenKey: "userToken",
-      },
+        },
     );
   },
 
@@ -42,7 +40,11 @@ export const userService = {
     return apiRequest<UploadResponse>(`/users/upload?type=${type}`, {
       method: "POST",
       body: formData,
-      tokenKey: "userToken",
+    });
+  },
+  logout() {
+    return apiRequest<{ success: boolean; message: string }>("/auth/logout", {
+      method: "POST",
     });
   },
 };

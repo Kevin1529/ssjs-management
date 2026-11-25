@@ -66,7 +66,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const data = await apiRequest<{ token?: string }>("/auth/verify-otp", {
+      await apiRequest("/auth/verify-otp", {
         method: "POST",
         body: JSON.stringify({
           mobileNumber,
@@ -74,15 +74,7 @@ export default function Login() {
         }),
       });
 
-      if (!data.token) {
-        throw new Error(
-          "Login succeeded, but no authentication token was returned.",
-        );
-      }
-
-      // Basic local-development storage.
-      localStorage.setItem("userToken", data.token);
-
+      // The backend sets the HttpOnly userToken cookie.
       router.push("/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
