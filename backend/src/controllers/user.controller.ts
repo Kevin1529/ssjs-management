@@ -178,6 +178,40 @@ export const uploadProfileFile = async (
       });
     }
 
+    // Check file signatures instead of trusting the browser-provided MIME type.
+    const fileHandle = await fs.promises.open(req.file.path, "r");
+    const signature = Buffer.alloc(12);
+    try {
+      await fileHandle.read(signature, 0, signature.length, 0);
+    } finally {
+      await fileHandle.close();
+    }
+
+    const isJpeg = signature[0] === 0xff && signature[1] === 0xd8 && signature[2] === 0xff;
+    const isPng = signature.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]));
+    const isWebp = signature.toString("ascii", 0, 4) === "RIFF" &&
+      signature.toString("ascii", 8, 12) === "WEBP";
+    const isPdf = signature.toString("ascii", 0, 5) === "%PDF-";
+
+    const validPhoto = isJpeg || isPng || isWebp;
+    const validDocument = validPhoto || isPdf;
+    const mimeMatchesSignature =
+      (req.file.mimetype === "image/jpeg" && isJpeg) ||
+      (req.file.mimetype === "image/png" && isPng) ||
+      (req.file.mimetype === "image/webp" && isWebp) ||
+      (req.file.mimetype === "application/pdf" && isPdf);
+    const validSignature =
+      mimeMatchesSignature &&
+      (req.query.type === "photo" ? validPhoto : validDocument);
+
+    if (!validSignature) {
+      await fs.promises.unlink(req.file.path);
+      return res.status(400).json({
+        success: false,
+        message: "The uploaded file content does not match an allowed file type."
+      });
+    }
+
     const fileUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
 
     return res.status(200).json({

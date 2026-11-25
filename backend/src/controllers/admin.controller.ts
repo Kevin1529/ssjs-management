@@ -7,15 +7,22 @@ import User from "../models/User";
 import Counter from "../models/Counter";
 import { AdminRequest } from "../middleware/admin.middleware";
 import { setAuthCookie, clearAuthCookie } from "../utils/authCookie";
+import { clearCsrfCookie } from "../utils/csrf";
 
 export const adminLogin = async (
   req: Request,
   res: Response
 ) => {
   try {
-    const { email, password } = req.body;
+    const { email, password } = req.body || {};
 
-    if (!email || !password) {
+    if (
+      typeof email !== "string" ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) ||
+      typeof password !== "string" ||
+      password.length < 1 ||
+      password.length > 128
+    ) {
       return res.status(400).json({
         success: false,
         message: "Email and password are required"
@@ -23,7 +30,7 @@ export const adminLogin = async (
     }
 
     const admin = await Admin.findOne({
-      email: email.toLowerCase()
+      email: email.trim().toLowerCase()
     }).select("+password");
 
     if (!admin) {
@@ -427,6 +434,7 @@ export const getDashboardStats = async (
 
 export const adminLogout = async (_req: Request, res: Response) => {
   clearAuthCookie(res, "adminToken");
+  clearCsrfCookie(res);
 
   return res.status(200).json({
     success: true,

@@ -9,11 +9,12 @@ import {
   getDashboardStats
 } from "../controllers/admin.controller";
 import { adminAuth } from "../middleware/admin.middleware";
+import { adminLoginRateLimit } from "../middleware/rateLimit.middleware";
 
 const router = Router();
 
 // Public admin login
-router.post("/login", adminLogin);
+router.post("/login", adminLoginRateLimit, adminLogin);
 router.post("/logout", adminLogout);
 
 // Protected admin APIs
