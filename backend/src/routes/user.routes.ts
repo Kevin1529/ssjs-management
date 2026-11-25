@@ -8,6 +8,13 @@ import {
 
 import authMiddleware from "../middleware/auth.middleware";
 import upload from "../middleware/upload.middleware";
+import { createRateLimiter } from "../middleware/rateLimit.middleware";
+
+const uploadRateLimit = createRateLimiter({
+  windowMs: 60 * 60 * 1000,
+  max: 30,
+  message: "Too many uploads. Please try again later.",
+});
 
 const router = Router();
 
@@ -20,6 +27,7 @@ router.get("/my-profile", authMiddleware, getMyProfile);
 router.post(
   "/upload",
   authMiddleware,
+  uploadRateLimit,
   upload.single("file"),
   uploadProfileFile
 );
