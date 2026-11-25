@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LockKeyhole, LoaderCircle, Sparkles } from "lucide-react";
 import { adminService } from "@/services/admin.service";
+import { setActiveRole } from "@/lib/active-role";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -22,6 +23,7 @@ export default function AdminLoginPage() {
       await adminService.login(email, password);
 
       // The backend sets the HttpOnly adminToken cookie.
+      setActiveRole("admin");
       router.push("/admin/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Admin login failed.");
