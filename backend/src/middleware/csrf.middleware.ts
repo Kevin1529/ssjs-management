@@ -23,6 +23,7 @@ const csrfMiddleware = (
   ) {
     return res.status(403).json({
       success: false,
+      code: "CSRF_VALIDATION_FAILED",
       message: "CSRF validation failed. Refresh the page and try again.",
     });
   }
