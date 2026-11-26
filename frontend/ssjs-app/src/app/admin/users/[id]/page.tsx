@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import {
@@ -24,6 +24,20 @@ import { formatDate, formatDateTime } from "@/lib/date-format";
 import type { User } from "@/types/user";
 
 export default function AdminUserDetailsPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex min-h-screen items-center justify-center bg-[#F6F5EF]">
+          <RefreshCw className="animate-spin text-[#173F35]" size={28} />
+        </main>
+      }
+    >
+      <AdminUserDetailsContent />
+    </Suspense>
+  );
+}
+
+function AdminUserDetailsContent() {
   const router = useRouter();
   const params = useParams<{ id: string }>();
   const userId = params.id;
