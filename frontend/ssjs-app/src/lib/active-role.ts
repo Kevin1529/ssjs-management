@@ -7,25 +7,23 @@ export function getActiveRole(): ActiveRole | null {
     return null;
   }
 
-  const role = window.localStorage.getItem("activeRole");
+  const role = window.sessionStorage.getItem("activeRole");
   return role === "user" || role === "admin" ? role : null;
 }
 
 export function subscribeToActiveRole(listener: () => void) {
   window.addEventListener(activeRoleEvent, listener);
-  window.addEventListener("storage", listener);
 
   return () => {
     window.removeEventListener(activeRoleEvent, listener);
-    window.removeEventListener("storage", listener);
   };
 }
 
 export function setActiveRole(role: ActiveRole | null) {
   if (role) {
-    window.localStorage.setItem("activeRole", role);
+    window.sessionStorage.setItem("activeRole", role);
   } else {
-    window.localStorage.removeItem("activeRole");
+    window.sessionStorage.removeItem("activeRole");
   }
 
   window.dispatchEvent(new Event(activeRoleEvent));

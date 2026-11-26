@@ -7,7 +7,6 @@ import sendSMS from "../services/sms.service";
 import User from "../models/User";
 import generateToken from "../utils/jwt";
 import { setAuthCookie, clearAuthCookie } from "../utils/authCookie";
-import { clearCsrfCookie } from "../utils/csrf";
 
 export const sendOTP = async (
   req: Request,
@@ -180,7 +179,6 @@ export const verifyOTP = async (
 
 export const userLogout = async (_req: Request, res: Response) => {
   clearAuthCookie(res, "userToken");
-  clearCsrfCookie(res);
 
   return res.status(200).json({
     success: true,

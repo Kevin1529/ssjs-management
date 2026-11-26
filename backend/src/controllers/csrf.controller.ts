@@ -1,9 +1,18 @@
 import type { Request, Response } from "express";
-import { createCsrfToken, setCsrfCookie } from "../utils/csrf";
+import {
+  createCsrfToken,
+  setCsrfCookie,
+  verifyCsrfToken,
+} from "../utils/csrf";
 
-export const getCsrfToken = (_req: Request, res: Response) => {
+export const getCsrfToken = (req: Request, res: Response) => {
   try {
-    const csrfToken = createCsrfToken();
+    const cookieToken = req.cookies?.csrfToken;
+    const csrfToken =
+      typeof cookieToken === "string" && verifyCsrfToken(cookieToken)
+        ? cookieToken
+        : createCsrfToken();
+
     res.setHeader("Cache-Control", "no-store");
     setCsrfCookie(res, csrfToken);
 

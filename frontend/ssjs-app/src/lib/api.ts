@@ -67,15 +67,11 @@ export async function apiRequest<T>(
 
   const headers = new Headers(options.headers);
   const method = (options.method || "GET").toUpperCase();
+  const requiresCsrf = !["GET", "HEAD", "OPTIONS"].includes(method);
 
   // Let the browser set the multipart boundary for FormData uploads.
   if (typeof options.body === "string" && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
-  }
-
-  // All state-changing requests include the signed double-submit CSRF token.
-  if (!["GET", "HEAD", "OPTIONS"].includes(method)) {
-    headers.set("X-CSRF-Token", await getCsrfToken());
   }
 
   pendingRequests += 1;
@@ -85,16 +81,43 @@ export async function apiRequest<T>(
     const baseUrl = API_URL.replace(/\/+$/, "");
     const endpoint = path.replace(/^\/+/, "");
 
-    const response = await fetch(`${baseUrl}/${endpoint}`, {
-      ...options,
-      method,
-      headers,
-      credentials: "include",
-      cache: options.cache || "no-store",
-    });
+    const sendRequest = (csrfToken?: string) => {
+      const requestHeaders = new Headers(headers);
+      if (csrfToken) requestHeaders.set("X-CSRF-Token", csrfToken);
+
+      return fetch(`${baseUrl}/${endpoint}`, {
+        ...options,
+        method,
+        headers: requestHeaders,
+        credentials: "include",
+        cache: options.cache || "no-store",
+      });
+    };
+
+    let response = await sendRequest(
+      requiresCsrf ? await getCsrfToken() : undefined,
+    );
+
+    if (requiresCsrf && response.status === 403) {
+      const errorData: unknown = response.headers
+        .get("content-type")
+        ?.includes("application/json")
+        ? await response.clone().json()
+        : null;
+      const isCsrfFailure =
+        typeof errorData === "object" &&
+        errorData !== null &&
+        "code" in errorData &&
+        errorData.code === "CSRF_VALIDATION_FAILED";
+
+      if (isCsrfFailure) {
+        csrfTokenCache = null;
+        csrfTokenRequest = null;
+        response = await sendRequest(await getCsrfToken());
+      }
+    }
 
     if (response.status === 204) {
-      if (path.endsWith("/logout")) csrfTokenCache = null;
       return undefined as T;
     }
 
@@ -115,10 +138,6 @@ export async function apiRequest<T>(
           : `Request failed with status ${response.status}.`;
 
       throw new Error(message);
-    }
-
-    if (path.endsWith("/logout")) {
-      csrfTokenCache = null;
     }
 
     return data as T;

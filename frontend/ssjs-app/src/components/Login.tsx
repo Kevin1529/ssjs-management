@@ -78,6 +78,10 @@ export default function Login() {
 
       // The backend sets the HttpOnly userToken cookie.
       setActiveRole("user");
+      setStep("mobile");
+      setMobileNumber("+91");
+      setOtp("");
+      setMessage("");
       const response = await userService.getMyProfile();
       router.push(
         response.profile.status === "APPROVED"

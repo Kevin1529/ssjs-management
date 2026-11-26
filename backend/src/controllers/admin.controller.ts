@@ -7,7 +7,6 @@ import User from "../models/User";
 import Counter from "../models/Counter";
 import { AdminRequest } from "../middleware/admin.middleware";
 import { setAuthCookie, clearAuthCookie } from "../utils/authCookie";
-import { clearCsrfCookie } from "../utils/csrf";
 
 export const adminLogin = async (
   req: Request,
@@ -434,7 +433,6 @@ export const getDashboardStats = async (
 
 export const adminLogout = async (_req: Request, res: Response) => {
   clearAuthCookie(res, "adminToken");
-  clearCsrfCookie(res);
 
   return res.status(200).json({
     success: true,

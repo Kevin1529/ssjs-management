@@ -42,12 +42,3 @@ export function verifyCsrfToken(token: string): boolean {
 export function setCsrfCookie(res: Response, token: string): void {
   res.cookie(COOKIE_NAME, token, csrfCookieOptions);
 }
-
-export function clearCsrfCookie(res: Response): void {
-  res.clearCookie(COOKIE_NAME, {
-    httpOnly: csrfCookieOptions.httpOnly,
-    secure: csrfCookieOptions.secure,
-    sameSite: csrfCookieOptions.sameSite,
-    path: csrfCookieOptions.path,
-  });
-}
