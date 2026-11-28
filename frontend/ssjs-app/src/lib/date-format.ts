@@ -11,20 +11,22 @@ const dateTimeOptions: Intl.DateTimeFormatOptions = {
   hour12: true,
 };
 
-export function formatDate(value?: string) {
+function parseDate(value?: string) {
   if (!value) return undefined;
 
   const date = new Date(value);
-  return Number.isNaN(date.getTime())
-    ? undefined
-    : date.toLocaleDateString("en-GB", dateOptions);
+  return Number.isNaN(date.getTime()) ? undefined : date;
+}
+
+export function formatDate(value?: string) {
+  return parseDate(value)?.toLocaleDateString("en-GB", dateOptions);
 }
 
 export function formatDateTime(value?: string) {
-  if (!value) return undefined;
+  return parseDate(value)?.toLocaleString("en-GB", dateTimeOptions);
+}
 
-  const date = new Date(value);
-  return Number.isNaN(date.getTime())
-    ? undefined
-    : date.toLocaleString("en-GB", dateTimeOptions);
+/** Today as `YYYY-MM-DD`, for `<input type="date" max>` and comparisons. */
+export function todayISODate() {
+  return new Date().toISOString().slice(0, 10);
 }

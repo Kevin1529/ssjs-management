@@ -1,5 +1,5 @@
 import { apiRequest } from "@/lib/api";
-import type { ProfilePayload, User } from "@/types/user";
+import type { ProfilePayload, UploadType, User } from "@/types/user";
 
 export interface MyProfileResponse {
   success: boolean;
@@ -13,48 +13,39 @@ export interface UploadResponse {
   fileUrl: string;
   fileName: string;
   fileSize: number;
-  fileType: "photo" | "document";
+  fileType: UploadType;
 }
 
 export const userService = {
   getMyProfile() {
-    return apiRequest<MyProfileResponse>("/users/my-profile", {
-      method: "GET",
-    });
+    return apiRequest<MyProfileResponse>("/users/my-profile");
   },
 
   createProfile(payload: ProfilePayload) {
-    return apiRequest<{ success: boolean; message: string; profile: Partial<User> }>(
-      "/users/create-profile",
-      {
-        method: "POST",
-        body: JSON.stringify(payload),
-        },
-    );
+    return apiRequest<{
+      success: boolean;
+      message: string;
+      profile: Partial<User>;
+    }>("/users/create-profile", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
   },
 
   updateApprovedProfile(payload: ProfilePayload) {
     return apiRequest<{ success: boolean; message: string; profile: User }>(
       "/users/update-profile",
-      {
-        method: "PATCH",
-        body: JSON.stringify(payload),
-      },
+      { method: "PATCH", body: JSON.stringify(payload) },
     );
   },
 
-  uploadFile(file: File, type: "photo" | "document") {
+  uploadFile(file: File, type: UploadType) {
     const formData = new FormData();
     formData.append("file", file);
 
     return apiRequest<UploadResponse>(`/users/upload?type=${type}`, {
       method: "POST",
       body: formData,
-    });
-  },
-  logout() {
-    return apiRequest<{ success: boolean; message: string }>("/auth/logout", {
-      method: "POST",
     });
   },
 };

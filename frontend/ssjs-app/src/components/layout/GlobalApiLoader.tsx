@@ -1,11 +1,8 @@
 "use client";
 
-import { LoaderCircle } from "lucide-react";
 import { useSyncExternalStore } from "react";
-import {
-  getApiLoadingSnapshot,
-  subscribeToApiLoading,
-} from "@/lib/api";
+import { LoaderCircle } from "lucide-react";
+import { getApiLoadingSnapshot, subscribeToApiLoading } from "@/lib/api-loading";
 
 export default function GlobalApiLoader() {
   const isLoading = useSyncExternalStore(
@@ -14,18 +11,16 @@ export default function GlobalApiLoader() {
     () => false,
   );
 
-  if (!isLoading) {
-    return null;
-  }
+  if (!isLoading) return null;
 
   return (
     <div
       role="status"
       aria-live="polite"
       aria-label="Loading"
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-[#173F35]/20 p-6 backdrop-blur-[2px]"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-brand/20 p-6 backdrop-blur-[2px]"
     >
-      <div className="flex items-center gap-3 rounded-2xl bg-white px-6 py-4 text-sm font-medium text-[#173F35] shadow-xl">
+      <div className="flex items-center gap-3 rounded-2xl bg-white px-6 py-4 text-sm font-medium text-brand shadow-xl">
         <LoaderCircle
           size={20}
           aria-hidden="true"
