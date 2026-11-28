@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
-import GlobalApiLoader from "@/components/GlobalApiLoader";
-import SiteHeader from "@/components/SiteHeader";
+import GlobalApiLoader from "@/components/layout/GlobalApiLoader";
+import SiteHeader from "@/components/layout/SiteHeader";
 import "./globals.css";
-import { RefreshCw } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Mosaic | Membership Community",
@@ -12,24 +10,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
       <body suppressHydrationWarning>
-        <Suspense
-          fallback={
-            <main className="flex min-h-screen items-center justify-center bg-[#F6F5EF]">
-              <RefreshCw
-                className="animate-spin text-[#173F35]"
-                size={28}
-              />
-            </main>
-          }
-        >
-          <SiteHeader />
-        </Suspense>
+        <SiteHeader />
         <GlobalApiLoader />
         {children}
       </body>

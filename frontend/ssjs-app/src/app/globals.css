@@ -1,9 +1,24 @@
-
 @import "tailwindcss";
 
+/* Design tokens: use `bg-brand`, `text-ink`, `border-line`... instead of hex values. */
+@theme {
+  --color-brand: #173f35;
+  --color-brand-hover: #245747;
+  --color-brand-accent: #47765c;
+  --color-brand-muted: #78917f;
+  --color-brand-light: #d5e6d7;
+  --color-brand-tint: #e8f0e7;
+  --color-canvas: #f6f5ef;
+  --color-surface-muted: #fafbf8;
+  --color-ink: #29473d;
+  --color-ink-strong: #193b32;
+  --color-line: #e5eae2;
+  --color-line-soft: #edf0ea;
+}
+
 :root {
-  --background: #f6f5ef;
-  --foreground: #193b32;
+  --background: var(--color-canvas);
+  --foreground: var(--color-ink-strong);
 }
 
 * {
@@ -22,7 +37,9 @@ body {
 }
 
 button,
-input {
+input,
+select,
+textarea {
   font: inherit;
 }
 
@@ -30,14 +47,17 @@ button {
   cursor: pointer;
 }
 
-::selection {
-  background: #d5e6d7;
-  color: #173f35;
+button:disabled {
+  cursor: not-allowed;
 }
 
+::selection {
+  background: var(--color-brand-light);
+  color: var(--color-brand);
+}
 
 @layer components {
   .input {
-    @apply min-h-12 w-full rounded-xl border border-[#E4E9E2] bg-[#FAFBF8] px-4 py-3 text-sm text-[#193B32] outline-none transition placeholder:text-gray-400 focus:border-[#47765C] focus:ring-4 focus:ring-[#47765C]/10;
+    @apply min-h-12 w-full rounded-xl border border-line bg-surface-muted px-4 py-3 text-sm text-ink-strong outline-none transition placeholder:text-gray-400 focus:border-brand-accent focus:ring-4 focus:ring-brand-accent/10;
   }
 }

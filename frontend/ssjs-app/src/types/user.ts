@@ -1,11 +1,12 @@
-
 export type UserStatus =
   | "PROFILE_PENDING"
   | "PENDING_APPROVAL"
   | "APPROVED"
   | "REJECTED";
 
-export type Gender = "MALE" | "FEMALE";
+export type Gender = "MALE" | "FEMALE" | "OTHER";
+
+export type UploadType = "photo" | "document";
 
 export interface UserAddress {
   addressLine: string;
@@ -31,13 +32,6 @@ export interface User {
   approvedAt?: string;
   createdAt?: string;
   updatedAt?: string;
-}
-
-export interface ApiResponse<T> {
-  profile: any;
-  success: boolean;
-  message?: string;
-  user?: T;
 }
 
 export interface ProfilePayload {
